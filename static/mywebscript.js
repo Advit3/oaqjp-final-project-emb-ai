@@ -1,12 +1,18 @@
-let RunSentimentAnalysis = ()=>{
-    textToAnalyze = document.getElementById("textToAnalyze").value;
-
-    let xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            document.getElementById("system_response").innerHTML = xhttp.responseText;
-        }
-    };
-    xhttp.open("GET", "emotionDetector?textToAnalyze"+"="+textToAnalyze, true);
-    xhttp.send();
-}
+document.getElementById("emotion-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const output = document.getElementById("result");
+  const text = document.getElementById("text").value.trim();
+  if (!text) {
+    output.textContent = "Please enter text to analyze.";
+    return;
+  }
+  output.textContent = "Analyzing…";
+  try {
+    const response = await fetch(`/emotionDetector?textToAnalyze=${encodeURIComponent(text)}`);
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Analysis failed.");
+    output.textContent = `Dominant emotion: ${data.dominant_emotion}`;
+  } catch (error) {
+    output.textContent = error.message;
+  }
+});
